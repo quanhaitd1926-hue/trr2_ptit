@@ -7,81 +7,95 @@ using namespace std;
 #define se second
 const int mod = 1000000007;
 
-struct edge{
-	int x, y, w;
-};
-
-int n, m;
-int parent[200005];
-vector<edge> dscanh;
-
-bool cmp(edge a, edge b){
-	if(a.w != b.w) return a.w < b.w;
-	else{
-		if(a.x != b.x) return a.x < b.x;
-		else return a.y < b.y;
-	}
-}
+int n, s;
+int a[205][205];
+set<int> ke[205];
+int visited[205] = {0};
 
 void nhap(){
-	cin >> n >> m;
 	for(int i = 1; i <= n; i++){
-		parent[i] = i;
-	}
-	for(int i = 0; i < m; i++){
-		int x, y, w; cin >> x >> y >> w;
-		dscanh.push_back({x, y, w});
-	}
-	sort(dscanh.begin(), dscanh.end(), cmp);
-}
-
-int Find(int u){
-	if(u == parent[u]) return u;
-	return parent[u] = Find(parent[u]);
-}
-
-bool Union(int u, int v){
-	u = Find(u);
-	v = Find(v);
-	if(u == v) return false;
-	else{
-		if(u < v) parent[v] = u;
-		else parent[u] = v;
-		return true;
-	}
-}
-
-void Kruskal(){
-	vector<edge> MST;
-	int d = 0;
-	for(int i = 0; i < m; i++){
-		edge e = dscanh[i];
-		if(MST.size() == n - 1) break;
-		if(Union(e.x, e.y)){
-			MST.push_back(e);
-			d += e.w;
-		}
-	}
-	if(MST.size() < n - 1) cout << "0\n";
-	else{
-		cout << d << endl;
-		for(edge e : MST){
-			if(e.x < e.y){
-				cout << e.x << " " << e.y << " " << e.w << endl;
+		for(int j = 1; j <= n; j++){
+			cin >> a[i][j];
+			if(a[i][j] == 1){
+				ke[i].insert(j);
 			}
-			else cout << e.y << " " << e.x << " " << e.w << endl;
 		}
 	}
+}
+
+void DFS(int u){
+	visited[u] = 1;
+	for(int v : ke[u]){
+		if(!visited[v]){
+			DFS(v);
+		}
+	}
+}
+
+void EulerCycle(int s){
+	stack<int> st;
+	st.push(s);
+	vector<int> CE;
+	while(!st.empty()){
+		int u = st.top();
+		if(ke[u].size() != 0){
+			set<int>::iterator it = ke[u].begin();
+			st.push(*it);
+			ke[u].erase(*it);
+		}
+		else{
+			int x = st.top(); st.pop();
+			CE.push_back(x);
+		}
+	}
+	reverse(CE.begin(), CE.end());
+	for(int x : CE) cout << x << " ";
 }
 
 int main(){
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 
-	freopen("CK.INP", "r", stdin);
-	freopen("CK.OUT", "w", stdout);
+	freopen("CT.INP", "r", stdin);
+	freopen("CT.OUT", "w", stdout);
 	
-	nhap();
-	Kruskal();
+	int t; cin >> t;
+	if(t == 1){
+		cin >> n;
+		nhap();
+		int check = 1;
+		DFS(1);
+		for(int i = 1; i <= n; i++){
+			if(visited[i] == 0){
+				check = 0;
+				break;
+			}
+		}
+		if(check == 0) cout << "0\n";
+		else{
+			vector<pair<int, int>> v;
+			for(int i = 1; i <= n; i++){
+				int degAdd = 0, degSub = 0;
+				for(int j = 1; j <= n; j++){
+					if(a[i][j] == 1) ++degAdd;
+					if(a[j][i] == 1) ++degSub;
+				}
+				v.push_back({degAdd, degSub});
+			}
+			int CE = 1;
+			for(auto it : v){
+				if(it.first != it.second){
+					CE = 0;
+				}
+			}
+			if(CE == 1) cout << "1\n";
+			else cout << "2\n";
+		}
+	}
+	else{
+		cin >> n >> s;
+		nhap();
+		EulerCycle(s);
+	}
 	return 0;
 }

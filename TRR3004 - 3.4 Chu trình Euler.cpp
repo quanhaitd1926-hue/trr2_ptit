@@ -98,4 +98,4 @@ int main(){
 		EulerCycle(s);
 	}
 	return 0;
-}
+}	

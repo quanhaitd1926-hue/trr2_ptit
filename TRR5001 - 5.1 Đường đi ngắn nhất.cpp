@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
 
 #define ll long long
@@ -7,18 +7,20 @@ using namespace std;
 #define se second
 const int mod = 1000000007;
 
-int n, m, s, t;
-int parent[200005];
 #define ii pair<int, int>
-vector<ii> ke[200005];
+
+int n, s, t;
 int a[205][205];
+vector<pair<int, int>> ke[20005];
+int parent[20005];
+int d[20005];
 
 void nhap(){
 	cin >> n >> s >> t;
 	for(int i = 1; i <= n; i++){
 		for(int j = 1; j <= n; j++){
 			cin >> a[i][j];
-			if(a[i][j] != 10000 && a[i][j] != 0){
+			if(i != j && a[i][j] != 0 && a[i][j] != 10000){
 				ke[i].push_back({j, a[i][j]});
 			}
 		}
@@ -26,9 +28,11 @@ void nhap(){
 }
 
 void Dijkstra(int s){
-	vector<int> d(n + 1, 1e9);
-	priority_queue<ii, vector<ii>, greater<ii>> Q;
+	for(int i = 1; i <= n; i++){
+		d[i] = 1e9;
+	}
 	d[s] = 0;
+	priority_queue<ii, vector<ii>, greater<ii>> Q;
 	Q.push({0, s});
 	while(!Q.empty()){
 		ii p = Q.top(); Q.pop();
@@ -36,25 +40,25 @@ void Dijkstra(int s){
 		if(dis > d[u]) continue;
 		for(auto it : ke[u]){
 			int v = it.first, w = it.second;
-			if(d[v] > d[u] + w){
+			if(d[u] + w < d[v]){
 				d[v] = d[u] + w;
-				Q.push({d[v], v});
 				parent[v] = u;
+				Q.push({d[v], v});
 			}
 		}
 	}
-	if(d[t] != 1e9){
+	if(d[t] == 1e9) cout << "0\n";
+	else{
 		cout << d[t] << endl;
-		vector<int> ans;
-		while(t != s){
-			ans.push_back(t);
+		vector<int> path;
+		while(s != t){
+			path.push_back(t);
 			t = parent[t];
 		}
-		ans.push_back(s);
-		reverse(ans.begin(), ans.end());
-		for(int x : ans) cout << x << " ";
+		path.push_back(s);
+		reverse(path.begin(), path.end());
+		for(int x : path) cout << x << " ";
 	}
-	else cout << "0\n";
 }
 
 int main(){
